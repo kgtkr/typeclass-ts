@@ -1,0 +1,22 @@
+{
+  "name": "typeclass-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kgtkr/typeclass-ts.git"
+  },
+  "author": "kgtkr",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kgtkr/typeclass-ts/issues"
+  },
+  "homepage": "https://github.com/kgtkr/typeclass-ts#readme",
+  "devDependencies": {
+    "typescript": "^3.0.3"
+  }
+}
