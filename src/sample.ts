@@ -1,8 +1,7 @@
-const prototypeSymbol = Symbol();
+export const prototypeSymbol = Symbol();
 interface TypeClass<T> {
   [prototypeSymbol]: T
 }
-
 const showSymbol = Symbol();
 interface showTypeProps<T> {
   show: (self: T) => string
