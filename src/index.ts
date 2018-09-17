@@ -14,5 +14,3 @@ function TypeClass<S extends symbol, Funcs extends object>(s: S) {
   };
 }
 
-type X = <T>() => T
-type A = ReturnType<X/*型レベルでXに型パラメーター渡したい*/>;
