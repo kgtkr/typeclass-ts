@@ -2,8 +2,9 @@ import { Type, Keys } from "./hkt";
 import { Omit } from "type-zoo";
 
 export const prototypeSymbol = Symbol();
-
-export type TypeClassNoDefaultDefine<S extends Keys> = <D extends Partial<Type<S, unknown>>>(d: D) => TypeClassDefine<S, D>;
+type Cast<T, P> = T extends P ? T : P;
+type ParamsType<T> = T extends (...args: infer P) => any ? P : any[];
+export type TypeClassNoDefaultDefine<S extends Keys> = <D extends Partial<Type<S, unknown>>>(d: D) => TypeClassModules<S, D>;
 export type TypeClassDefine<S extends Keys, D extends Partial<Type<S, unknown>>> = <T>(impl: Omit<Type<S, T>, keyof D> & Pick<Partial<Type<S, T>>, keyof D>) => TypeClassImpl<S, T>;
 export interface TypeClassImpl<S extends Keys, T> {
   symbol: S,
@@ -15,18 +16,35 @@ export type ImpledData<Props, S extends Keys> = {
   }
 } & Props;
 
+export interface TypeClassModules<S extends Keys, D extends Partial<Type<S, unknown>>> {
+  typeClass: TypeClassDefine<S, D>,
+  funcs: {
+    [P in keyof Type<S, unknown>]: <T extends ImpledData<{}, S>>(...x: ParamsType<Type<S, T>[P]>) => ReturnType<Cast<Type<S, T>[P], (...args: any[]) => any>>
+  };
+}
+
+function geneFuncs<S extends Keys>(s: S): any {
+  return new Proxy({}, {
+    get: (_obj, name) => {
+      return (...x: any[]) => self[prototypeSymbol][s][name](...x)
+    }
+  });
+}
 
 export function TypeClass<S extends Keys>(s: S): TypeClassNoDefaultDefine<S> {
-  return <D extends Partial<Type<S, unknown>>>(d: D): TypeClassDefine<S, D> => {
-    return <T>(impl: Omit<Type<S, T>, keyof D> & Pick<Partial<Type<S, T>>, keyof D>): TypeClassImpl<S, T> => {
-      return {
-        symbol: s,
-        impl: {
-          ...d as any,
-          ...impl as any
-        } as Type<S, T>
-      };
-    }
+  return <D extends Partial<Type<S, unknown>>>(d: D): TypeClassModules<S, D> => {
+    return {
+      typeClass: <T>(impl: Omit<Type<S, T>, keyof D> & Pick<Partial<Type<S, T>>, keyof D>): TypeClassImpl<S, T> => {
+        return {
+          symbol: s,
+          impl: {
+            ...d as any,
+            ...impl as any
+          } as Type<S, T>
+        };
+      },
+      funcs: 1
+    };
   };
 }
 
