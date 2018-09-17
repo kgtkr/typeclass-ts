@@ -1,16 +1,20 @@
 import { PhantomType } from "./phantom";
+import { Type, Keys } from "./hkt";
+import { Omit } from "type-zoo";
 
-const prototypeSymbol = Symbol();
+export const prototypeSymbol = Symbol();
 
-function TypeClass<S extends symbol, Funcs extends object>(s: S) {
-  return function <D extends Partial<Funcs>>(d: D) {
-    /*
-    return {
-      symbol: s,
-      default: d,
-      type: PhantomType<T>()
-    };
-    */
+export function TypeClass<S extends Keys>(s: S) {
+  return function <D extends Partial<Type<S, unknown>>>(d: D) {
+    return function <T>(impl: Omit<Type<S, T>, keyof D> & Pick<Partial<Type<S, T>>, keyof D>) {
+      return {
+        symbol: s,
+        impl: {
+          ...d as any,
+          ...impl as any
+        } as Type<S, T>
+      };
+    }
   };
 }
 
