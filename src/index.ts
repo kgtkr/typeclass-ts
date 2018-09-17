@@ -3,7 +3,7 @@ import { Omit } from "type-zoo";
 export const prototypeSymbol = Symbol();
 export interface TypeClassImpl<S extends Keys, T> {
   symbol: S,
-  impl: Type<S, T>
+  impl: Type<S, ImpledData<T, S>>
 }
 export type ImpledData<Props, S extends Keys> = {
   [prototypeSymbol]: {
@@ -13,13 +13,13 @@ export type ImpledData<Props, S extends Keys> = {
 
 export function TypeClass<S extends Keys>(s: S) {
   return <D extends Partial<Type<S, ImpledData<{}, S>>>>(d: D) => {
-    return <T extends ImpledData<{}, S>>(impl: Omit<Type<S, T>, keyof D> & Pick<Partial<Type<S, T>>, keyof D>): TypeClassImpl<S, T> => {
+    return <T extends {}>(impl: Omit<Type<S, ImpledData<T, S>>, keyof D> & Pick<Partial<Type<S, ImpledData<T, S>>>, keyof D>): TypeClassImpl<S, T> => {
       return {
         symbol: s,
         impl: {
           ...d as any,
           ...impl as any
-        } as Type<S, T>
+        } as Type<S, ImpledData<T, S>>
       };
     };
   };
