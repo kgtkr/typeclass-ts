@@ -14,7 +14,7 @@ export type ImpledData<Props, S extends Keys> = {
 } & Props;
 
 export function TypeClass<S extends Keys>(s: S): TypeClassNoDefaultDefine<S> {
-  return <D extends Partial<Type<S, unknown>>>(d: D): TypeClassDefine<S, D> => {
+  return <D extends Partial<Type<S, ImpledData<{}, S>>>>(d: D): TypeClassDefine<S, D> => {
     return <T>(impl: Omit<Type<S, T>, keyof D> & Pick<Partial<Type<S, T>>, keyof D>): TypeClassImpl<S, T> => {
       return {
         symbol: s,
