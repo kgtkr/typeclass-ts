@@ -2,8 +2,7 @@
   "name": "typeclass-ts",
   "version": "0.1.0-alpha",
   "description": "",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "src/index.ts",
   "scripts": {
     "build": "tsc"
   },
