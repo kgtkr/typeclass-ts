@@ -1,8 +1,6 @@
 import { Type, Keys } from "./hkt";
 import { Omit } from "type-zoo";
 export const prototypeSymbol = Symbol();
-export type TypeClassNoDefaultDefine<S extends Keys> = <D extends Partial<Type<S, ImpledData<{}, S>>>>(d: D) => TypeClassDefine<S, D>;
-export type TypeClassDefine<S extends Keys, D extends Partial<Type<S, ImpledData<{}, S>>>> = <T>(impl: Omit<Type<S, T>, keyof D> & Pick<Partial<Type<S, T>>, keyof D>) => TypeClassImpl<S, T>;
 export interface TypeClassImpl<S extends Keys, T> {
   symbol: S,
   impl: Type<S, T>
@@ -13,9 +11,9 @@ export type ImpledData<Props, S extends Keys> = {
   }
 } & Props;
 
-export function TypeClass<S extends Keys>(s: S): TypeClassNoDefaultDefine<S> {
-  return <D extends Partial<Type<S, ImpledData<{}, S>>>>(d: D): TypeClassDefine<S, D> => {
-    return <T>(impl: Omit<Type<S, T>, keyof D> & Pick<Partial<Type<S, T>>, keyof D>): TypeClassImpl<S, T> => {
+export function TypeClass<S extends Keys>(s: S) {
+  return <D extends Partial<Type<S, ImpledData<{}, S>>>>(d: D) => {
+    return <T extends ImpledData<{}, S>>(impl: Omit<Type<S, T>, keyof D> & Pick<Partial<Type<S, T>>, keyof D>): TypeClassImpl<S, T> => {
       return {
         symbol: s,
         impl: {
@@ -36,7 +34,7 @@ function toImplMap<T, S extends Keys>(impls: TypeClassImpl<S, T>[]): { [P in S]:
 }
 
 export function Data<Props>() {
-  return <S extends Keys>(...impls: TypeClassImpl<S, ImpledData<Props, S>>[]) => {
+  return <S extends Keys>(...impls: TypeClassImpl<S, Props>[]) => {
     const implMap = toImplMap(impls);
     return (props: Props): ImpledData<Props, S> => {
       return {
