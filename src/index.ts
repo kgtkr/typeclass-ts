@@ -1,45 +1,43 @@
 import { Type, Keys } from "./hkt";
 import { Omit } from "type-zoo";
+
 export const prototypeSymbol = Symbol();
-export interface TypeClassImpl<S extends Keys, T> {
-  symbol: S,
-  impl: Type<S, ImpledData<T, S>>
-}
+
+// 実装のある型クラス
+export type TypeClassImpl<S extends Keys, T> = {
+  [P in S]: TypeImpl<P, T>
+};
+
+// 型クラスを実装したデータ型
 export type ImpledData<Props, S extends Keys> = {
-  [prototypeSymbol]: {
-    [P in S]: Type<P, ImpledData<Props, S>>
-  }
+  [prototypeSymbol]: TypeClassImpl<S, Props>
 } & Props;
 
+// TにSを実装するヘルパー
+type TypeImpl<S extends Keys, T> = Type<S, ImpledData<T, S>>;
+
+// 定義
 export function TypeClass<S extends Keys>(s: S) {
-  return <D extends Partial<Type<S, ImpledData<{}, S>>>>(d: D) => {
-    return <T extends {}>(impl: Omit<Type<S, ImpledData<T, S>>, keyof D> & Pick<Partial<Type<S, ImpledData<T, S>>>, keyof D>): TypeClassImpl<S, T> => {
+  // デフォルト実装
+  return <D extends Partial<TypeImpl<S, {}>>>(d: D) => {
+    // 実装
+    return <T extends {}>(impl: Omit<TypeImpl<S, T>, keyof D> & Pick<Partial<TypeImpl<S, T>>, keyof D>): TypeClassImpl<S, T> => {
       return {
-        symbol: s,
-        impl: {
+        [s]: {
           ...d as any,
           ...impl as any
-        } as Type<S, ImpledData<T, S>>
-      };
+        },
+      } as any;
     };
   };
 }
 
-function toImplMap<T, S extends Keys>(impls: TypeClassImpl<S, T>[]): { [P in S]: Type<P, T> } {
-  const map: any = {};
-  for (let impl of impls) {
-    map[impl.symbol] = impl.impl;
-  }
-  return map;
-}
-
 export function Data<Props>() {
-  return <S extends Keys>(...impls: TypeClassImpl<S, Props>[]) => {
-    const implMap = toImplMap(impls);
+  return <S extends Keys>(impl: TypeClassImpl<S, Props>) => {
     return (props: Props): ImpledData<Props, S> => {
       return {
         ...props as any,
-        [prototypeSymbol]: implMap
+        [prototypeSymbol]: impl
       };
     };
   };
