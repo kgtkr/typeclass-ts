@@ -1,6 +1,6 @@
 import { Type, Keys } from "./hkt";
 import { Omit } from "type-zoo";
-
+export * from "./hkt";
 export const prototypeSymbol = Symbol();
 export type TypeClassNoDefaultDefine<S extends Keys> = <D extends Partial<Type<S, unknown>>>(d: D) => TypeClassDefine<S, D>;
 export type TypeClassDefine<S extends Keys, D extends Partial<Type<S, unknown>>> = <T>(impl: Omit<Type<S, T>, keyof D> & Pick<Partial<Type<S, T>>, keyof D>) => TypeClassImpl<S, T>;
